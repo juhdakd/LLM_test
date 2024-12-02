@@ -22,6 +22,7 @@ class Solution {
         }
         //递归函数，用于判断当前位置是否可以放置皇后
         solve(res, board, 0);
+        System.out.println("结果："+res.size());
         return res;
     }
     public void solve(List<List<String>> res, char[][] board, int row) {
