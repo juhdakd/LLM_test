@@ -367,5 +367,271 @@ class Solution {
     }
 }
 ```
+241203 3274. 检查棋盘方格颜色是否相同
+```code
+class Solution {
+    public static boolean checkTwoChessboards(String coordinate1, String coordinate2) {
+        // 判断是否属于同一组
+        if (Judge(coordinate1.charAt(0), coordinate2.charAt(0))) {
+            if (JudgeNum(coordinate1.charAt(1), coordinate2.charAt(1))) {
+                return true;
+            }
+            return false;
+        } else {
+            if (JudgeNum(coordinate1.charAt(1), coordinate2.charAt(1)))
+                return false;
+            return true;
+        }
+    }
 
+    public static boolean Judge(char a, char b) {
+        String s1 = "aceg";
+        String s2 = "bdfh";
+        if (a == b)
+            return true;
+        if (s1.contains(String.valueOf(a)) && s2.contains(String.valueOf(b)))
+            return false;
+        if (s1.contains(String.valueOf(b)) && s2.contains(String.valueOf(a)))
+            return false;
+        return true;
+    }
 
+    public static boolean JudgeNum(char a, char b) {
+        if (a == b)
+            return true;
+        String s1 = "1357";
+        String s2 = "2468";
+        if (s1.contains(String.valueOf(a)) && s1.contains(String.valueOf(b)))
+            return true;
+        if (s2.contains(String.valueOf(a)) && s2.contains(String.valueOf(b)))
+            return true;
+        return false;
+    }
+}
+```
+### 241204  2056 棋盘上有效移动组合的数目
+自己穷举 报错 需要重新做
+
+```code
+官方题解：
+class Solution {
+    static int[][] rookDirections = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    static int[][] bishopDirections = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+    static int[][] queenDirections = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+    String[] pieces;
+    int[][] positions;
+    int n;
+    int res = 0;
+    List<Movement> stack = new ArrayList<Movement>();
+
+    public int countCombinations(String[] pieces, int[][] positions) {
+        this.pieces = pieces;
+        this.positions = positions;
+        this.n = pieces.length;
+        dfs(0);
+        return res;
+    }
+
+    public void dfs(int u) {
+        if (u == n) {
+            res++;
+            return;
+        }
+        int[][] directions;
+        if ("rook".equals(pieces[u])) {
+            directions = rookDirections;
+        } else if ("queen".equals(pieces[u])) {
+            directions = queenDirections;
+        } else {
+            directions = bishopDirections;
+        }
+
+        // 处理第 u 个棋子原地不动的情况
+        stack.add(new Movement(positions[u][0], positions[u][1], positions[u][0], positions[u][1], 0, 0));
+        if (check(u)) {
+            dfs(u + 1);
+        }
+        stack.remove(stack.size() - 1);
+
+        // 枚举第 u 个棋子在所有方向、所有步数的情况
+        for (int i = 0; i < directions.length; i++) {
+            for (int j = 1; j < 8; j++) {
+                int x = positions[u][0] + directions[i][0] * j;
+                int y = positions[u][1] + directions[i][1] * j;
+                if (x < 1 || x > 8 || y < 1 || y > 8) {
+                    break;
+                }
+                stack.add(new Movement(positions[u][0], positions[u][1], x, y, directions[i][0], directions[i][1]));
+                if (check(u)) {
+                    dfs(u + 1);
+                }
+                stack.remove(stack.size() - 1);
+            }
+        }
+    }
+
+    // 判断第 u 个棋子是否之前的棋子在移动过程中相遇
+    public boolean check(int u) {
+        for (int v = 0; v < u; v++) {
+            if (stack.get(u).cross(stack.get(v))) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+class Movement {
+    public final int START_X;
+    public final int START_Y;
+    public final int END_X;
+    public final int END_Y;
+    public final int DX;
+    public final int DY;
+    public int curX;
+    public int curY;
+
+    public Movement(int startX, int startY, int endX, int endY, int dx, int dy) {
+        this.START_X = startX;
+        this.START_Y = startY;
+        this.END_X = endX;
+        this.END_Y = endY;
+        this.DX = dx;
+        this.DY = dy;
+        this.curX = startX;
+        this.curY = startY;
+    }
+
+    public void reset() {
+        curX = START_X;
+        curY = START_Y;
+    }
+
+    public boolean stopped() {
+        return curX == END_X && curY == END_Y;
+    }
+
+    public void advance() {
+        if (!stopped()) {
+            curX += DX;
+            curY += DY;
+        }
+    }
+
+    public boolean cross(Movement oth) {
+        // 每次判断是否相遇时需要重置 cur
+        reset();
+        oth.reset();
+        while (!stopped() || !oth.stopped()) {
+            advance();
+            oth.advance();
+            if (curX == oth.curX && curY == oth.curY) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+```
+### 241205 3001. 捕获黑皇后需要的最少移动次数
+```code
+class Solution {
+    public int minMovesToCaptureTheQueen(int a, int b, int c, int d, int e, int f) {
+        if (a == e) {
+            // 不能跳过其他棋子
+            if (a == c && judge(d, b, f))
+                return 2;
+            return 1;
+        }
+        if (b == f) {
+            if (d == b && judge(c, a, e))
+                return 2;
+            return 1;
+        }
+        if (juedui(c,e)==juedui(d,f)){
+            // 判断a b 也在斜线上
+            if(b==d || b==f) return 1;
+            double result = (double) (a - c) / (b - d);
+            double result2 = (double) (a - e) / (b - f);
+            if(result==result2){
+                if(judge(a,c,e)){
+                    System.out.println("yes");
+                    return 2;
+                }
+            }
+            return 1;
+        }
+        return 2;
+    }
+
+    public boolean judge(int x1, int x2, int x3) {
+        if (x1 < x3 && x1 > x2)
+            return true;
+        if (x1 > x3 && x1 < x2)
+            return true;
+        return false;
+    }
+    public int juedui(int a,int b){
+        if(a>b){
+            return a-b;
+        }else{
+            return b-a;
+        }
+    }
+
+    public static void main(String[] args) {
+        Solution s = new Solution();
+        System.out.println(s.minMovesToCaptureTheQueen(3,8,1,2,4,5));
+    }
+}
+```
+### 241206 999 可以被一步捕获的棋子数
+```code
+class Solution {
+    public int numRookCaptures(char[][] board) {
+        // 先找到白色的车
+        int x = 0, y = 0;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (board[i][j] == 'R') {
+                    x = i;
+                    y = j;
+                    break;
+                }
+            }
+        }
+        int num = 0;
+        // 遍历上下左右 看是否有卒 或者白色的象
+        for (int i = x - 1; i >= 0; i--) {
+            if (board[i][y] == 'p') {
+                num++;
+                break;
+            } else if (board[i][y] == 'B')
+                break;
+        }
+        for (int i = x + 1; i < 8; i++) {
+            if (board[i][y] == 'p') {
+                num++;
+                break;
+            } else if (board[i][y] == 'B')
+                break;
+        }
+        for (int i = y - 1; i >= 0; i--) {
+            if (board[x][i] == 'p') {
+                num++;
+                break;
+            } else if (board[x][i] == 'B')
+                break;
+        }
+        for (int i = y + 1; i < 8; i++) {
+            if (board[x][i] == 'p') {
+                num++;
+                break;
+            } else if (board[x][i] == 'B')
+                break;
+        }
+        return num;
+    }
+}
+```
