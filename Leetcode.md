@@ -1,4 +1,4 @@
- ### 241125 743 网络延迟时间
+### 241125 743 网络延迟时间
 
 ```code
 class Solution {
@@ -37,7 +37,9 @@ class Solution {
     }
 }
 ```
+
 ### 241126 3206 交替组
+
 ```code
 class Solution {
     public int numberOfAlternatingGroups(int[] colors) {
@@ -54,7 +56,8 @@ class Solution {
 ```
 
 ### 241127 3208 交替组
-```code 
+
+```code
 // 下面代码 会导致超时
 class Solution {
     public int numberOfAlternatingGroups(int[] colors, int k) {
@@ -106,7 +109,8 @@ class Solution {
 ```
 
 ### 241128 3250 单调数组队的数目
-```code 
+
+```code
 class Solution {
     public int countOfPairs(int[] nums) {
         int mod = 1000000007;
@@ -156,8 +160,10 @@ class Solution {
     }
 }
 ```
+
 ### 241129 3250 单调数组队的数目
-```code 
+
+```code
 优化： 使用动态规划
 import java.util.HashMap;
 import java.util.Map;
@@ -209,7 +215,8 @@ class Solution {
 ```
 
 ### 241130 3232 判断是否可以赢得游戏
-```code 
+
+```code
 class Solution {
     public boolean canAliceWin(int[] nums) {
         // 判断是否是个位数
@@ -229,7 +236,9 @@ class Solution {
     }
 }
 ```
+
 ### 241201 51 N皇后
+
 ```code
 import java.util.ArrayList;
 import java.util.List;
@@ -305,7 +314,9 @@ class Solution {
     }
 }
 ```
+
 ### 241202 52 N皇后 II
+
 ```code
 class Solution {
     public int totalNQueens(int n) {
@@ -367,7 +378,9 @@ class Solution {
     }
 }
 ```
+
 241203 3274. 检查棋盘方格颜色是否相同
+
 ```code
 class Solution {
     public static boolean checkTwoChessboards(String coordinate1, String coordinate2) {
@@ -409,133 +422,16 @@ class Solution {
     }
 }
 ```
+
 ### 241204  2056 棋盘上有效移动组合的数目
+
 自己穷举 报错 需要重新做
 
-```code
-官方题解：
-class Solution {
-    static int[][] rookDirections = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-    static int[][] bishopDirections = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-    static int[][] queenDirections = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-    String[] pieces;
-    int[][] positions;
-    int n;
-    int res = 0;
-    List<Movement> stack = new ArrayList<Movement>();
+官方题解
 
-    public int countCombinations(String[] pieces, int[][] positions) {
-        this.pieces = pieces;
-        this.positions = positions;
-        this.n = pieces.length;
-        dfs(0);
-        return res;
-    }
-
-    public void dfs(int u) {
-        if (u == n) {
-            res++;
-            return;
-        }
-        int[][] directions;
-        if ("rook".equals(pieces[u])) {
-            directions = rookDirections;
-        } else if ("queen".equals(pieces[u])) {
-            directions = queenDirections;
-        } else {
-            directions = bishopDirections;
-        }
-
-        // 处理第 u 个棋子原地不动的情况
-        stack.add(new Movement(positions[u][0], positions[u][1], positions[u][0], positions[u][1], 0, 0));
-        if (check(u)) {
-            dfs(u + 1);
-        }
-        stack.remove(stack.size() - 1);
-
-        // 枚举第 u 个棋子在所有方向、所有步数的情况
-        for (int i = 0; i < directions.length; i++) {
-            for (int j = 1; j < 8; j++) {
-                int x = positions[u][0] + directions[i][0] * j;
-                int y = positions[u][1] + directions[i][1] * j;
-                if (x < 1 || x > 8 || y < 1 || y > 8) {
-                    break;
-                }
-                stack.add(new Movement(positions[u][0], positions[u][1], x, y, directions[i][0], directions[i][1]));
-                if (check(u)) {
-                    dfs(u + 1);
-                }
-                stack.remove(stack.size() - 1);
-            }
-        }
-    }
-
-    // 判断第 u 个棋子是否之前的棋子在移动过程中相遇
-    public boolean check(int u) {
-        for (int v = 0; v < u; v++) {
-            if (stack.get(u).cross(stack.get(v))) {
-                return false;
-            }
-        }
-        return true;
-    }
-}
-
-class Movement {
-    public final int START_X;
-    public final int START_Y;
-    public final int END_X;
-    public final int END_Y;
-    public final int DX;
-    public final int DY;
-    public int curX;
-    public int curY;
-
-    public Movement(int startX, int startY, int endX, int endY, int dx, int dy) {
-        this.START_X = startX;
-        this.START_Y = startY;
-        this.END_X = endX;
-        this.END_Y = endY;
-        this.DX = dx;
-        this.DY = dy;
-        this.curX = startX;
-        this.curY = startY;
-    }
-
-    public void reset() {
-        curX = START_X;
-        curY = START_Y;
-    }
-
-    public boolean stopped() {
-        return curX == END_X && curY == END_Y;
-    }
-
-    public void advance() {
-        if (!stopped()) {
-            curX += DX;
-            curY += DY;
-        }
-    }
-
-    public boolean cross(Movement oth) {
-        // 每次判断是否相遇时需要重置 cur
-        reset();
-        oth.reset();
-        while (!stopped() || !oth.stopped()) {
-            advance();
-            oth.advance();
-            if (curX == oth.curX && curY == oth.curY) {
-                return true;
-            }
-        }
-        return false;
-    }
-}
-
-```
 ### 241205 3001. 捕获黑皇后需要的最少移动次数
-```code
+
+```java
 class Solution {
     public int minMovesToCaptureTheQueen(int a, int b, int c, int d, int e, int f) {
         if (a == e) {
@@ -586,8 +482,10 @@ class Solution {
     }
 }
 ```
+
 ### 241206 999 可以被一步捕获的棋子数
-```code
+
+```java
 class Solution {
     public int numRookCaptures(char[][] board) {
         // 先找到白色的车
@@ -632,6 +530,197 @@ class Solution {
                 break;
         }
         return num;
+    }
+}
+```
+
+3238 求出胜利玩家的数目
+
+```java
+class Solution {
+    public int winningPlayerCount(int n, int[][] pick) {
+        int[][] num = new int[10][11];
+        // 初始化
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < 11; j++) {
+                num[i][j] = 0;
+            }
+        }
+
+        for (int i = 0; i < pick.length; i++) {
+            // 统计每个玩家 获得的每种球的数目
+            num[pick[i][0]][pick[i][1]]++;
+        }
+        // 判断每个玩家
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < 11; j++) {
+                if (num[i][j] > i) {
+                    count++;
+                    break;
+                }
+            }
+        }
+        return count;
+    }
+}
+```
+
+### 241209 1812 判断国际象棋棋盘中一个格子的颜色
+
+```java
+class Solution {
+    public boolean squareIsWhite(String coordinates) {
+        // 判断棋盘颜色
+        char x = coordinates.charAt(0);
+        char y = coordinates.charAt(1);
+        return (x - 'a') % 2 != (y - '1') % 2;
+    }
+}
+```
+### 241210 935 骑士拨号器
+```java
+超时:
+class Solution {
+    int[][] next = {
+            { 4, 6 }, // 0
+            { 6, 8 }, // 1
+            { 7, 9 }, // 2
+            { 4, 8 }, // 3
+            { 0, 3, 9 }, // 4
+            {}, // 5
+            { 0, 1, 7 }, // 6
+            { 2, 6 }, // 7
+            { 1, 3 }, // 8
+            { 4, 6 } // 9
+    };
+    int count = 0;
+
+    public int knightDialer(int n) {
+        // 可以先将每一个数可以到达的下一个数都列出来
+        // 从0开始 直到长度到n-;
+        for (int i = 0; i < 10; i++) {
+            Diguin(i, n, 1);
+        }
+        return count % 1000000007;
+    }
+
+    void Diguin(int i, int n, int len) {
+        if (len == n){
+            count++;
+            return;
+        }
+        for (int j : next[i]) {
+            Diguin(j, n, len + 1);
+        }
+    }
+}
+
+官方题解：动态规划
+class Solution {
+    private static final int MOD = 1_000_000_007;
+    private static final int[][] next = {
+        {4, 6}, // 0
+        {6, 8}, // 1
+        {7, 9}, // 2
+        {4, 8}, // 3
+        {3, 9, 0}, // 4
+        {}, // 5
+        {1, 7, 0}, // 6
+        {2, 6}, // 7
+        {1, 3}, // 8
+        {2, 4} // 9
+    };
+
+    public int knightDialer(int n) {
+        if (n == 1) return 10; // 如果只需要按一次，那么有10种可能
+
+        long[] counts = new long[10];
+        Arrays.fill(counts, 1); // 每个数字开始时都有1种方式
+
+        for (int step = 1; step < n; ++step) {
+            long[] nextCounts = new long[10];
+            for (int i = 0; i < 10; ++i) {
+                for (int j : next[i]) {
+                    nextCounts[j] = (nextCounts[j] + counts[i]) % MOD;
+                }
+            }
+            counts = nextCounts;
+        }
+
+        long sum = 0;
+        for (long count : counts) {
+            sum = (sum + count) % MOD;
+        }
+        return (int) sum;
+    }
+}
+```
+
+### 241211 2717 半有序排列
+```java
+class Solution {
+    public int semiOrderedPermutation(int[] nums) {
+        // 半有序排列
+        int num=0;
+        int num1=-1,num2=-1;
+        //找出1 和 n
+        for(int i=0;i<nums.length;i++){
+            if(nums[i]==1){
+                num1=i;
+            }
+            if(nums[i]==nums.length){
+                num2=i;
+            }
+        }
+        //进行交换
+        if(num1<num2){
+            num=num1+nums.length-num2-1;
+        }else{
+            num=num1+nums.length-num2-2;
+        }
+        return num;
+    }
+}
+```
+### 241212 2931. 购买物品的最大开销
+```java
+class Solution {
+    public long maxSpending(int[][] values) {
+        int[] num = new int[values.length];
+        for (int i = 0; i < values.length; i++) {
+            num[i] = values[i].length - 1;
+        }
+
+        long sum = 0;
+        int day = 1;
+        int minIndex = 0;
+
+        while (day <= values.length * values[0].length) {
+            // 初始化 minIndex 为第一个有效的索引
+            for (int i = 0; i < values.length; i++) {
+                if (num[i] >= 0) {
+                    minIndex = i;
+                    break;
+                }
+            }
+
+            // 找出最小的数
+            for (int i = 0; i < values.length; i++) {
+                if (num[i] < 0) {
+                    continue;
+                }
+                if (values[i][num[i]] < values[minIndex][num[minIndex]]) {
+                    minIndex = i;
+                }
+            }
+
+            sum += (long) values[minIndex][num[minIndex]] * day;
+            num[minIndex]--;
+            day++;
+        }
+
+        return sum;
     }
 }
 ```
